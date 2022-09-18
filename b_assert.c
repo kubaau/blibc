@@ -1,12 +1,34 @@
-#include "b_assert.h"
-
-#include "b_stdlib.h"
 #include "b_string.h"
 
-#include <unistd.h>
+static char *b_internal_itoa ();
+
+void
+b_assertfailed (const char *file, int line, const char *condition)
+{
+  typedef long ssize_t;
+
+  char buf[1024] = { 0 };
+  char itoa_buf[10];
+  void b_abort ();
+  ssize_t write();
+
+  b_internal_itoa (itoa_buf, line);
+
+  b_strcat (buf, "assertion failed: ");
+  b_strcat (buf, file);
+  b_strcat (buf, "(");
+  b_strcat (buf, itoa_buf);
+  b_strcat (buf, ")");
+  b_strcat (buf, ": ");
+  b_strcat (buf, condition);
+  b_strcat (buf, "\n");
+
+  (void)-(write (2, buf, b_strlen (buf)));
+  b_abort ();
+}
 
 static char *
-b_strrev (char *dest)
+b_internal_strrev (char *dest)
 {
   const b_size_t len = b_strlen (dest);
   const b_size_t half_len = len / 2;
@@ -26,13 +48,14 @@ b_strrev (char *dest)
 }
 
 static char *
-b_itoa (char *dest, int i)
+b_internal_itoa (char *dest, int i)
 {
   char *dest_runner = dest;
 
   if (i == 0)
     {
-      *dest_runner = '0';
+      *dest_runner++ = '0';
+      *dest_runner = B_NULL;
       return dest;
     }
 
@@ -47,36 +70,7 @@ b_itoa (char *dest, int i)
       i /= 10;
     }
 
-  if (i < 0)
-    {
-      b_strrev (dest + 1);
-    }
-  else
-    {
-      b_strrev (dest);
-    }
+  *dest_runner = B_NULL;
+  b_internal_strrev (i >= 0 ? dest : dest + 1);
   return dest;
-}
-
-void
-b_assertfailed (const char *file, int line, const char *condition)
-{
-  char itoa_buf[10] = { 0 };
-  char buf[1024] = { 0 };
-
-  b_itoa (itoa_buf, line);
-
-  b_strcat (buf, "assertion failed: ");
-  b_strcat (buf, file);
-  b_strcat (buf, "(");
-  b_strcat (buf, itoa_buf);
-  b_strcat (buf, ")");
-  b_strcat (buf, ": ");
-  b_strcat (buf, condition);
-  b_strcat (buf, "\n");
-
-  if (write (2, buf, b_strlen (buf)))
-    {
-    }
-  b_abort ();
 }

@@ -3,75 +3,34 @@
 #include "b_errno.h"
 #include "b_limits.h"
 
-static char *
-b_strcpy_impl (char *dest, const char *src, b_size_t *const count)
-{
-  const char *src_runner = src;
-  char *dest_runner = dest;
-
-  while (!count || (*count)--)
-    {
-      *dest_runner = *src_runner;
-      if (!*dest_runner)
-        {
-          return dest;
-        }
-      ++dest_runner;
-      ++src_runner;
-    }
-  return dest;
-}
+static char *b_internal_strcpy ();
+static char *b_internal_strcat ();
+static int b_internal_strcmp ();
+static b_size_t b_internal_strspn (const char *dest, const char *src,
+                                   char contains);
 
 char *
 b_strcpy (char *dest, const char *src)
 {
-  return b_strcpy_impl (dest, src, B_NULL);
+  return b_internal_strcpy (dest, src, B_NULL);
 }
 
 char *
 b_strncpy (char *dest, const char *src, b_size_t count)
 {
-  return b_strcpy_impl (dest, src, &count);
-}
-
-static char *
-b_strcat_impl (char *dest, const char *src, b_size_t *const count)
-{
-  const char *src_runner = src;
-  char *dest_runner = dest;
-
-  if (count && !*count)
-    {
-      return dest;
-    }
-
-  while (*dest_runner)
-    {
-      ++dest_runner;
-    }
-
-  while (!count || (*count)--)
-    {
-      *dest_runner = *src_runner++;
-      if (!*dest_runner++)
-        {
-          return dest;
-        }
-    }
-
-  return dest;
+  return b_internal_strcpy (dest, src, &count);
 }
 
 char *
 b_strcat (char *dest, const char *src)
 {
-  return b_strcat_impl (dest, src, B_NULL);
+  return b_internal_strcat (dest, src, B_NULL);
 }
 
 char *
 b_strncat (char *dest, const char *src, b_size_t count)
 {
-  return b_strcat_impl (dest, src, &count);
+  return b_internal_strcat (dest, src, &count);
 }
 
 b_size_t
@@ -87,42 +46,16 @@ b_strlen (const char *str)
   return ret;
 }
 
-static int
-b_strcmp_impl (const char *lhs, const char *rhs, b_size_t *const count)
-{
-  const char *lhs_runner = lhs;
-  const char *rhs_runner = rhs;
-
-  while (!count || (*count)--)
-    {
-      if (!*lhs_runner)
-        {
-          return *rhs_runner ? -1 : 0;
-        }
-      if (!*rhs_runner || *lhs_runner > *rhs_runner)
-        {
-          return 1;
-        }
-      if (*lhs_runner < *rhs_runner)
-        {
-          return -1;
-        }
-      ++lhs_runner;
-      ++rhs_runner;
-    }
-  return 0;
-}
-
 int
 b_strcmp (const char *lhs, const char *rhs)
 {
-  return b_strcmp_impl (lhs, rhs, B_NULL);
+  return b_internal_strcmp (lhs, rhs, B_NULL);
 }
 
 int
 b_strncmp (const char *lhs, const char *rhs, b_size_t count)
 {
-  return b_strcmp_impl (lhs, rhs, &count);
+  return b_internal_strcmp (lhs, rhs, &count);
 }
 
 char *
@@ -154,50 +87,16 @@ b_strrchr (const char *str, int ch)
   return ch ? (char *)ret : (char *)runner;
 }
 
-static b_size_t
-b_strspn_impl (const char *dest, const char *src, char contains)
-{
-  const char *dest_runner = dest;
-  const char *src_runner = src;
-  char check[B_CHAR_MAX + 1];
-  b_size_t curr = 0;
-  b_size_t ret = 0;
-
-  b_memset (check, !contains, sizeof (check));
-  while (*src_runner)
-    {
-      check[(short)*src_runner++] = contains;
-    }
-
-  while (*dest_runner)
-    {
-      if (check[(short)*dest_runner++])
-        {
-          ++curr;
-        }
-      else
-        {
-          if (curr > ret)
-            {
-              ret = curr;
-            }
-          curr = 0;
-        }
-    }
-
-  return curr > ret ? curr : ret;
-}
-
 b_size_t
 b_strspn (const char *dest, const char *src)
 {
-  return b_strspn_impl (dest, src, 1);
+  return b_internal_strspn (dest, src, 1);
 }
 
 b_size_t
 b_strcspn (const char *dest, const char *src)
 {
-  return b_strspn_impl (dest, src, 0);
+  return b_internal_strspn (dest, src, 0);
 }
 
 char *
@@ -383,4 +282,111 @@ b_strerror (int errnum)
     default:
       return "B_EUNKNOWN";
     }
+}
+
+static char *
+b_internal_strcpy (char *dest, const char *src, b_size_t *const count)
+{
+  const char *src_runner = src;
+  char *dest_runner = dest;
+
+  while (!count || (*count)--)
+    {
+      *dest_runner = *src_runner;
+      if (!*dest_runner)
+        {
+          return dest;
+        }
+      ++dest_runner;
+      ++src_runner;
+    }
+  return dest;
+}
+
+static char *
+b_internal_strcat (char *dest, const char *src, b_size_t *const count)
+{
+  const char *src_runner = src;
+  char *dest_runner = dest;
+
+  if (count && !*count)
+    {
+      return dest;
+    }
+
+  while (*dest_runner)
+    {
+      ++dest_runner;
+    }
+
+  while (!count || (*count)--)
+    {
+      *dest_runner = *src_runner++;
+      if (!*dest_runner++)
+        {
+          return dest;
+        }
+    }
+
+  return dest;
+}
+
+static int
+b_internal_strcmp (const char *lhs, const char *rhs, b_size_t *const count)
+{
+  const char *lhs_runner = lhs;
+  const char *rhs_runner = rhs;
+
+  while (!count || (*count)--)
+    {
+      if (!*lhs_runner)
+        {
+          return *rhs_runner ? -1 : 0;
+        }
+      if (!*rhs_runner || *lhs_runner > *rhs_runner)
+        {
+          return 1;
+        }
+      if (*lhs_runner < *rhs_runner)
+        {
+          return -1;
+        }
+      ++lhs_runner;
+      ++rhs_runner;
+    }
+  return 0;
+}
+
+static b_size_t
+b_internal_strspn (const char *dest, const char *src, char contains)
+{
+  const char *dest_runner = dest;
+  const char *src_runner = src;
+  char check[B_CHAR_MAX + 1];
+  b_size_t curr = 0;
+  b_size_t ret = 0;
+
+  b_memset (check, !contains, sizeof (check));
+  while (*src_runner)
+    {
+      check[(short)*src_runner++] = contains;
+    }
+
+  while (*dest_runner)
+    {
+      if (check[(short)*dest_runner++])
+        {
+          ++curr;
+        }
+      else
+        {
+          if (curr > ret)
+            {
+              ret = curr;
+            }
+          curr = 0;
+        }
+    }
+
+  return curr > ret ? curr : ret;
 }

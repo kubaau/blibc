@@ -3,61 +3,19 @@
 #include "b_ctype.h"
 #include "b_string.h"
 
-typedef int (*b_comp) (const void *, const void *);
-
-#define B_ELEMENT_AT(ptr, size, index) ((char *)(ptr) + (size) * (index))
-
-static void
-b_swap (void *a, void *b, b_size_t size)
-{
-  char temp[1024];
-
-  b_memcpy (temp, a, size);
-  b_memcpy (a, b, size);
-  b_memcpy (b, temp, size);
-}
-
-static int
-b_partition (void *ptr, b_size_t size, int first, int last, b_comp comp)
-{
-  char *pivot;
-  int i;
-  int j;
-
-  if (last - first < 1)
-    return first;
-
-  pivot = B_ELEMENT_AT (ptr, size, last);
-  i = first;
-
-  for (j = first; j != last; ++j)
-    if (comp (B_ELEMENT_AT (ptr, size, j), pivot) <= 0)
-      b_swap (B_ELEMENT_AT (ptr, i++, size), B_ELEMENT_AT (ptr, j, size),
-              size);
-  b_swap (B_ELEMENT_AT (ptr, i, size), pivot, size);
-  return i;
-}
-
-static void
-b_quicksort (void *ptr, b_size_t size, int first, int last, b_comp comp)
-{
-  if (first < last)
-    {
-      const int q = b_partition (ptr, size, first, last, comp);
-      b_quicksort (ptr, size, first, q - 1, comp);
-      b_quicksort (ptr, size, q + 1, last, comp);
-    }
-}
+typedef int (*b_internal_comp) (const void *, const void *);
+static void b_internal_quicksort ();
+static void *b_internal_alloc ();
 
 void
-b_qsort (void *ptr, b_size_t count, b_size_t size, b_comp comp)
+b_qsort (void *ptr, b_size_t count, b_size_t size, b_internal_comp comp)
 {
-  b_quicksort (ptr, size, 0, count - 1, comp);
+  b_internal_quicksort (ptr, size, 0, count - 1, comp);
 }
 
 void *
 b_bsearch (const void *key, const void *ptr, b_size_t count, b_size_t size,
-           b_comp comp)
+           b_internal_comp comp)
 {
   const b_size_t half = count / 2;
   const char *mid = (const char *)ptr + half * size;
@@ -93,7 +51,7 @@ b_atol (const char *str)
       ++str;
     }
 
-  for (; *str; ++str)
+  while (*str)
     {
       if (*str == '+')
         {
@@ -119,52 +77,18 @@ b_atol (const char *str)
         {
           break;
         }
+      ++str;
     }
 
   return sign_set == -1 ? -ret : ret;
 }
 
-static char b_membuf[1024];
-static char *b_membuf_end = b_membuf + sizeof (b_membuf);
-static char *b_memrover = b_membuf;
-
-void *
-b_malloc_impl (b_size_t size, b_size_t al)
-{
-  char *ret = b_memrover;
-
-  if (!size)
-    {
-      size = 1;
-    }
-
-  if (al > 1)
-    {
-      while ((b_size_t)ret % al != 0)
-        {
-          ++ret;
-        }
-    }
-
-  if (ret + size >= b_membuf_end)
-    {
-      return B_NULL;
-    }
-
-  b_memrover = ret + size;
-  return ret;
-}
-
-static b_size_t
-b_alignof (b_size_t size)
-{
-  return size >= 16 ? 16 : size >= 8 ? 8 : size >= 4 ? 4 : size >= 2 ? 2 : 1;
-}
-
+#define B_INTERNAL_ALIGNOF(size)                                              \
+  (size >= 16 ? 16 : size >= 8 ? 8 : size >= 4 ? 4 : size >= 2 ? 2 : 1)
 void *
 b_malloc (b_size_t size)
 {
-  return b_malloc_impl (size, b_alignof (size));
+  return b_internal_alloc (size, B_INTERNAL_ALIGNOF (size));
 }
 
 void *
@@ -172,9 +96,10 @@ b_calloc (b_size_t num, b_size_t size)
 {
   const b_size_t total = num * size;
 
-  void *ret = b_malloc_impl (total, b_alignof (size));
+  void *ret = b_internal_alloc (total, B_INTERNAL_ALIGNOF (size));
   return ret ? b_memset (ret, 0, total) : ret;
 }
+#undef B_INTERNAL_ALIGNOF
 
 void *
 b_realloc (void *ptr, b_size_t new_size)
@@ -195,4 +120,81 @@ b_free (void *ptr)
     {
       return;
     }
+}
+
+static void
+b_internal_swap (void *a, void *b, b_size_t size)
+{
+  char temp[1024];
+
+  b_memcpy (temp, a, size);
+  b_memcpy (a, b, size);
+  b_memcpy (b, temp, size);
+}
+
+static int
+b_internal_partition (void *ptr, b_size_t size, int first, int last,
+                      b_internal_comp comp)
+{
+  char *pivot;
+  int i;
+  int j;
+
+  if (last - first < 1)
+    return first;
+
+#define B_INTERNAL_ELEMENT_AT(ptr, size, index)                               \
+  ((char *)(ptr) + (size) * (index))
+  pivot = B_INTERNAL_ELEMENT_AT (ptr, size, last);
+  i = first;
+
+  for (j = first; j != last; ++j)
+    if (comp (B_INTERNAL_ELEMENT_AT (ptr, size, j), pivot) <= 0)
+      b_internal_swap (B_INTERNAL_ELEMENT_AT (ptr, i++, size),
+                       B_INTERNAL_ELEMENT_AT (ptr, j, size), size);
+  b_internal_swap (B_INTERNAL_ELEMENT_AT (ptr, i, size), pivot, size);
+#undef B_INTERNAL_ELEMENT_AT
+  return i;
+}
+
+static void
+b_internal_quicksort (void *ptr, b_size_t size, int first, int last,
+                      b_internal_comp comp)
+{
+  if (first < last)
+    {
+      const int q = b_internal_partition (ptr, size, first, last, comp);
+      b_internal_quicksort (ptr, size, first, q - 1, comp);
+      b_internal_quicksort (ptr, size, q + 1, last, comp);
+    }
+}
+
+static void *
+b_internal_alloc (b_size_t size, b_size_t al)
+{
+  static char buf[1024];
+  static const char *const buf_end = (const char *)buf + sizeof (buf);
+  static const char *rover = (const char *)buf;
+  const char *ret = rover;
+
+  if (!size)
+    {
+      size = 1;
+    }
+
+  if (al > 1)
+    {
+      while ((b_size_t)ret % al != 0)
+        {
+          ++ret;
+        }
+    }
+
+  if (ret + size >= buf_end)
+    {
+      return B_NULL;
+    }
+
+  rover = ret + size;
+  return (void *)ret;
 }

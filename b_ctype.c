@@ -1,21 +1,21 @@
-#define B_IS_BETWEEN(ch, ch1, ch2) ((ch) >= (ch1) && (ch) <= (ch2))
+#define B_INTERNAL_IS_BETWEEN(ch, ch1, ch2) ((ch) >= (ch1) && (ch) <= (ch2))
 
 int
 b_islower (int ch)
 {
-  return B_IS_BETWEEN (ch, 'a', 'z');
+  return B_INTERNAL_IS_BETWEEN (ch, 'a', 'z');
 }
 
 int
 b_isupper (int ch)
 {
-  return B_IS_BETWEEN (ch, 'A', 'Z');
+  return B_INTERNAL_IS_BETWEEN (ch, 'A', 'Z');
 }
 
 int
 b_isdigit (int ch)
 {
-  return B_IS_BETWEEN (ch, '0', '9');
+  return B_INTERNAL_IS_BETWEEN (ch, '0', '9');
 }
 
 int
@@ -45,7 +45,7 @@ b_toupper (int ch)
 int
 b_isxdigit (int ch)
 {
-  return b_isdigit (ch) || B_IS_BETWEEN (b_tolower (ch), 'a', 'f');
+  return b_isdigit (ch) || B_INTERNAL_IS_BETWEEN (b_tolower (ch), 'a', 'f');
 }
 
 int
@@ -57,19 +57,19 @@ b_iscntrl (int ch)
 int
 b_isgraph (int ch)
 {
-  return B_IS_BETWEEN (ch, '!', '~');
+  return B_INTERNAL_IS_BETWEEN (ch, '!', '~');
 }
 
 int
 b_isspace (int ch)
 {
-  return ch == ' ' || B_IS_BETWEEN (ch, '\t', '\r');
+  return ch == ' ' || B_INTERNAL_IS_BETWEEN (ch, '\t', '\r');
 }
 
 int
 b_isprint (int ch)
 {
-  return B_IS_BETWEEN (ch, ' ', '~');
+  return B_INTERNAL_IS_BETWEEN (ch, ' ', '~');
 }
 
 int

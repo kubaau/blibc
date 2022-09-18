@@ -3,71 +3,72 @@
 #include "b_assert.h"
 #include "b_errno.h"
 
-#define B_STREQ(lhs, rhs) (b_strcmp (lhs, rhs) == 0)
-#define B_STRNEQ(lhs, rhs, size) (b_strncmp (lhs, rhs, size) == 0)
+#define B_INTERNAL_STREQ(lhs, rhs) (b_strcmp (lhs, rhs) == 0)
 
 void
-test_strcpy (void)
+b_test_strcpy (void)
 {
   char buf[10];
 
   b_assert (b_strcpy (buf, "abc") == buf);
-  b_assert (B_STREQ (buf, "abc"));
+  b_assert (B_INTERNAL_STREQ (buf, "abc"));
   b_assert (b_strcpy (buf, "   abc") == buf);
-  b_assert (B_STREQ (buf, "   abc"));
+  b_assert (B_INTERNAL_STREQ (buf, "   abc"));
   b_assert (b_strcpy (buf, "a123bc") == buf);
-  b_assert (B_STREQ (buf, "a123bc"));
+  b_assert (B_INTERNAL_STREQ (buf, "a123bc"));
   b_assert (b_strcpy (buf, "") == buf);
-  b_assert (B_STREQ (buf, ""));
+  b_assert (B_INTERNAL_STREQ (buf, ""));
   b_assert (b_strcpy (buf, "123456789") == buf);
-  b_assert (B_STREQ (buf, "123456789"));
+  b_assert (B_INTERNAL_STREQ (buf, "123456789"));
 }
 
 void
-test_strncpy (void)
+b_test_strncpy (void)
 {
   char buf[10];
 
+#define B_INTERNAL_STRNEQ(lhs, rhs, size) (b_strncmp (lhs, rhs, size) == 0)
   b_assert (b_strncpy (buf, "abc", 4) == buf);
-  b_assert (B_STRNEQ (buf, "abc", 4));
+  b_assert (B_INTERNAL_STRNEQ (buf, "abc", 4));
   b_assert (b_strncpy (buf, "   abc", 4) == buf);
-  b_assert (B_STRNEQ (buf, "   abc", 4));
+  b_assert (B_INTERNAL_STRNEQ (buf, "   abc", 4));
   b_assert (b_strncpy (buf, "a123bc", 4) == buf);
-  b_assert (B_STRNEQ (buf, "a123bc", 4));
+  b_assert (B_INTERNAL_STRNEQ (buf, "a123bc", 4));
   b_assert (b_strncpy (buf, "", 4) == buf);
-  b_assert (B_STRNEQ (buf, "", 4));
+  b_assert (B_INTERNAL_STRNEQ (buf, "", 4));
   b_assert (b_strncpy (buf, "123456789", 4) == buf);
-  b_assert (B_STRNEQ (buf, "123456789", 4));
+  b_assert (B_INTERNAL_STRNEQ (buf, "123456789", 4));
+#undef B_INTERNAL_STRNEQ
 }
 
 void
-test_strcat (void)
+b_test_strcat (void)
 {
   char buf[10] = "abc";
 
   b_strcat (buf, "def");
-  b_assert (B_STREQ (buf, "abcdef"));
+  b_assert (B_INTERNAL_STREQ (buf, "abcdef"));
   b_strcat (buf, "g");
-  b_assert (B_STREQ (buf, "abcdefg"));
+  b_assert (B_INTERNAL_STREQ (buf, "abcdefg"));
   b_strcat (buf, "");
-  b_assert (B_STREQ (buf, "abcdefg"));
+  b_assert (B_INTERNAL_STREQ (buf, "abcdefg"));
 }
 
 void
-test_strncat (void)
+b_test_strncat (void)
 {
   char buf[10] = "abc";
 
   b_strncat (buf, "def", 2);
-  b_assert (B_STREQ (buf, "abcde"));
+  b_assert (B_INTERNAL_STREQ (buf, "abcde"));
   b_strncat (buf, "g", 3);
-  b_assert (B_STREQ (buf, "abcdeg"));
+  b_assert (B_INTERNAL_STREQ (buf, "abcdeg"));
   b_strncat (buf, "", 0);
-  b_assert (B_STREQ (buf, "abcdeg"));
+  b_assert (B_INTERNAL_STREQ (buf, "abcdeg"));
 }
 
 void
-test_strlen (void)
+b_test_strlen (void)
 {
   b_assert (b_strlen ("") == 0);
   b_assert (b_strlen ("a") == 1);
@@ -78,7 +79,7 @@ test_strlen (void)
 }
 
 void
-test_strcmp (void)
+b_test_strcmp (void)
 {
   b_assert (b_strcmp ("abc", "abc") == 0);
   b_assert (b_strcmp ("", "") == 0);
@@ -91,7 +92,7 @@ test_strcmp (void)
 }
 
 void
-test_strncmp (void)
+b_test_strncmp (void)
 {
   b_assert (b_strncmp ("abc", "abc", 3) == 0);
   b_assert (b_strncmp ("", "", 3) == 0);
@@ -105,7 +106,7 @@ test_strncmp (void)
 }
 
 void
-test_strchr (void)
+b_test_strchr (void)
 {
   const char *str = "abcdefabcdef\0abcdefg";
 
@@ -117,7 +118,7 @@ test_strchr (void)
 }
 
 void
-test_strrchr (void)
+b_test_strrchr (void)
 {
   const char *str = "abcdefabcdef\0abcdefg";
 
@@ -128,16 +129,16 @@ test_strrchr (void)
   b_assert (b_strrchr (str, 'g') == B_NULL);
 }
 
-static const char *low_alpha = "qwertyuiopasdfghjklzxcvbnm";
-static const char *str1 = "abcde312$#@";
-static const char *str2 = "abcde312$#@qwertyuiop";
-static const char *str3 = "312$#@";
-static const char *str4 = "31f2$#@";
-static const char *str5 = "";
-
 void
-test_strspn (void)
+b_test_strspn (void)
 {
+  const char *low_alpha = "qwertyuiopasdfghjklzxcvbnm";
+  const char *str1 = "abcde312$#@";
+  const char *str2 = "abcde312$#@qwertyuiop";
+  const char *str3 = "312$#@";
+  const char *str4 = "31f2$#@";
+  const char *str5 = "";
+
   b_assert (b_strspn (str1, low_alpha) == 5);
   b_assert (b_strspn (str2, low_alpha) == 10);
   b_assert (b_strspn (str3, low_alpha) == 0);
@@ -146,8 +147,15 @@ test_strspn (void)
 }
 
 void
-test_strcspn (void)
+b_test_strcspn (void)
 {
+  const char *low_alpha = "qwertyuiopasdfghjklzxcvbnm";
+  const char *str1 = "abcde312$#@";
+  const char *str2 = "abcde312$#@qwertyuiop";
+  const char *str3 = "312$#@";
+  const char *str4 = "31f2$#@";
+  const char *str5 = "";
+
   b_assert (b_strcspn (str1, low_alpha) == 6);
   b_assert (b_strcspn (str2, low_alpha) == 6);
   b_assert (b_strcspn (str3, low_alpha) == 6);
@@ -156,8 +164,15 @@ test_strcspn (void)
 }
 
 void
-test_strpbrk (void)
+b_test_strpbrk (void)
 {
+  const char *low_alpha = "qwertyuiopasdfghjklzxcvbnm";
+  const char *str1 = "abcde312$#@";
+  const char *str2 = "abcde312$#@qwertyuiop";
+  const char *str3 = "312$#@";
+  const char *str4 = "31f2$#@";
+  const char *str5 = "";
+
   b_assert (b_strpbrk (str1, low_alpha) - str1 == 0);
   b_assert (b_strpbrk (str2, low_alpha) - str2 == 0);
   b_assert (b_strpbrk (str3, low_alpha) == B_NULL);
@@ -166,11 +181,14 @@ test_strpbrk (void)
 }
 
 void
-test_strstr (void)
+b_test_strstr (void)
 {
+  const char *str1 = "abcde312$#@";
+  const char *str2 = "";
+
   b_assert (b_strstr (str1, str1) == str1);
   b_assert (b_strstr (str1, "") == str1);
-  b_assert (b_strstr (str5, "") == str5);
+  b_assert (b_strstr (str2, "") == str2);
   b_assert (b_strstr (str1, "abcde") - str1 == 0);
   b_assert (b_strstr (str1, "c") - str1 == 2);
   b_assert (b_strstr (str1, "cde312") - str1 == 2);
@@ -178,7 +196,7 @@ test_strstr (void)
 }
 
 void
-test_strtok (void)
+b_test_strtok (void)
 {
   const char *end_str1 = "A\0bird\0came\0down\0the\0walk";
   const char *end_str2 = "A\0bird/came\0down\0the\0walk";
@@ -188,38 +206,38 @@ test_strtok (void)
   b_size_t i;
 
   token = b_strtok (str1, " ");
-  b_assert (B_STREQ (token, "A"));
+  b_assert (B_INTERNAL_STREQ (token, "A"));
   token = b_strtok (B_NULL, " ");
-  b_assert (B_STREQ (token, "bird"));
+  b_assert (B_INTERNAL_STREQ (token, "bird"));
   token = b_strtok (B_NULL, " ");
-  b_assert (B_STREQ (token, "came"));
+  b_assert (B_INTERNAL_STREQ (token, "came"));
   token = b_strtok (B_NULL, " ");
-  b_assert (B_STREQ (token, "down"));
+  b_assert (B_INTERNAL_STREQ (token, "down"));
   token = b_strtok (B_NULL, " ");
-  b_assert (B_STREQ (token, "the"));
+  b_assert (B_INTERNAL_STREQ (token, "the"));
   token = b_strtok (B_NULL, " ");
-  b_assert (B_STREQ (token, "walk"));
+  b_assert (B_INTERNAL_STREQ (token, "walk"));
   b_assert (b_strtok (B_NULL, " ") == B_NULL);
   for (i = 0; i < sizeof (str1); ++i)
     b_assert (str1[i] == end_str1[i]);
 
   token = b_strtok (str2, " $-/");
-  b_assert (B_STREQ (token, "A"));
+  b_assert (B_INTERNAL_STREQ (token, "A"));
   token = b_strtok (B_NULL, "-");
-  b_assert (B_STREQ (token, "bird/came"));
+  b_assert (B_INTERNAL_STREQ (token, "bird/came"));
   token = b_strtok (B_NULL, " ");
-  b_assert (B_STREQ (token, "down"));
+  b_assert (B_INTERNAL_STREQ (token, "down"));
   token = b_strtok (B_NULL, " $-/");
-  b_assert (B_STREQ (token, "the"));
+  b_assert (B_INTERNAL_STREQ (token, "the"));
   token = b_strtok (B_NULL, " $-/");
-  b_assert (B_STREQ (token, "walk"));
+  b_assert (B_INTERNAL_STREQ (token, "walk"));
   b_assert (b_strtok (B_NULL, " ") == B_NULL);
   for (i = 0; i < sizeof (str2); ++i)
     b_assert (str2[i] == end_str2[i]);
 }
 
 void
-test_memchr (void)
+b_test_memchr (void)
 {
   const char str[] = "abcdef";
   const int i = 0x1234;
@@ -238,7 +256,7 @@ test_memchr (void)
 }
 
 void
-test_memcmp (void)
+b_test_memcmp (void)
 {
   const char str1[] = "abcdef";
   const char str2[] = "abcdefg";
@@ -264,22 +282,22 @@ test_memcmp (void)
 }
 
 void
-test_memset (void)
+b_test_memset (void)
 {
   char buf[10];
   int i;
 
   b_assert (b_memset (buf, 0, sizeof (buf)) == buf);
   b_assert (b_memset (buf, 'a', 3) == buf);
-  b_assert (B_STREQ (buf, "aaa"));
+  b_assert (B_INTERNAL_STREQ (buf, "aaa"));
   b_assert (b_memset (buf, 'a', 5) == buf);
-  b_assert (B_STREQ (buf, "aaaaa"));
+  b_assert (B_INTERNAL_STREQ (buf, "aaaaa"));
   b_assert (b_memset (buf, 'b', 2) == buf);
-  b_assert (B_STREQ (buf, "bbaaa"));
+  b_assert (B_INTERNAL_STREQ (buf, "bbaaa"));
   b_assert (b_memset (buf + 4, 'c', 3) == buf + 4);
-  b_assert (B_STREQ (buf, "bbaaccc"));
+  b_assert (B_INTERNAL_STREQ (buf, "bbaaccc"));
   b_assert (b_memset (buf, 'd', sizeof (buf) - 1) == buf);
-  b_assert (B_STREQ (buf, "ddddddddd"));
+  b_assert (B_INTERNAL_STREQ (buf, "ddddddddd"));
 
   b_assert (b_memset (&i, 0, sizeof (int)) == &i);
   b_assert (i == 0);
@@ -288,40 +306,40 @@ test_memset (void)
 }
 
 void
-test_memcpy (void)
+b_test_memcpy (void)
 {
   const char *str = "abcdef";
   char buf[10] = { 0 };
 
   b_assert (b_memcpy (buf, str, b_strlen (str)) == buf);
-  b_assert (B_STREQ (buf, str));
+  b_assert (B_INTERNAL_STREQ (buf, str));
   b_assert (b_memcpy (buf + 1, str, 3) == buf + 1);
-  b_assert (B_STREQ (buf, "aabcef"));
+  b_assert (B_INTERNAL_STREQ (buf, "aabcef"));
   b_assert (b_memcpy (buf + 3, str + 2, 2) == buf + 3);
-  b_assert (B_STREQ (buf, "aabcdf"));
+  b_assert (B_INTERNAL_STREQ (buf, "aabcdf"));
 }
 
 void
-test_memmove (void)
+b_test_memmove (void)
 {
   const char *str = "abcdef";
   char buf[10] = { 0 };
 
   b_assert (b_memmove (buf, str, b_strlen (str)) == buf);
-  b_assert (B_STREQ (buf, str));
+  b_assert (B_INTERNAL_STREQ (buf, str));
   b_assert (b_memmove (buf + 1, str, 3) == buf + 1);
-  b_assert (B_STREQ (buf, "aabcef"));
+  b_assert (B_INTERNAL_STREQ (buf, "aabcef"));
   b_assert (b_memmove (buf + 3, str + 2, 2) == buf + 3);
-  b_assert (B_STREQ (buf, "aabcdf"));
+  b_assert (B_INTERNAL_STREQ (buf, "aabcdf"));
 
   b_assert (b_memmove (buf, buf + 1, b_strlen (buf)) == buf);
-  b_assert (B_STREQ (buf, "abcdf"));
+  b_assert (B_INTERNAL_STREQ (buf, "abcdf"));
 }
 
 void
-test_strerror (void)
+b_test_strerror (void)
 {
-  b_assert (B_STREQ (b_strerror (B_EDOM), "B_EDOM"));
-  b_assert (B_STREQ (b_strerror (B_ERANGE), "B_ERANGE"));
-  b_assert (B_STREQ (b_strerror (0), "B_EUNKNOWN"));
+  b_assert (B_INTERNAL_STREQ (b_strerror (B_EDOM), "B_EDOM"));
+  b_assert (B_INTERNAL_STREQ (b_strerror (B_ERANGE), "B_ERANGE"));
+  b_assert (B_INTERNAL_STREQ (b_strerror (0), "B_EUNKNOWN"));
 }

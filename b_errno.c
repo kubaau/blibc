@@ -1,1 +1,1 @@
-int b_errno_impl = 0;
+int b_internal_errno = 0;

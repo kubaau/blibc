@@ -1,5 +1,6 @@
 #ifndef B_ASSERT_H
 #define B_ASSERT_H
+
 #ifdef B_NDEBUG
 #define b_assert(condition) ((void)0)
 #else
@@ -13,4 +14,5 @@
       b_assertfailed (__FILE__, __LINE__, #condition);                        \
     }
 #endif /* B_NDEBUG */
+
 #endif /* B_ASSERT_H */

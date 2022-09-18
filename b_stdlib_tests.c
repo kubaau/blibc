@@ -1,29 +1,29 @@
 #include "b_stdlib.h"
 
 #include "b_assert.h"
-#include "b_limits.h"
 
-#define B_DEFINE_INTEGER_COMPARE(type)                                        \
-  static int b_compare_##type (const void *a, const void *b)                  \
+#define B_INTERNAL_DEFINE_INTEGER_COMPARE(type)                               \
+  static int b_internal_compare_##type (const void *a, const void *b)         \
   {                                                                           \
     const type arg1 = *(const type *)a;                                       \
     const type arg2 = *(const type *)b;                                       \
     return (arg1 > arg2) - (arg1 < arg2);                                     \
   }
-
-B_DEFINE_INTEGER_COMPARE (int)
-B_DEFINE_INTEGER_COMPARE (short)
+B_INTERNAL_DEFINE_INTEGER_COMPARE (int)
+B_INTERNAL_DEFINE_INTEGER_COMPARE (short)
+#undef B_INTERNAL_DEFINE_INTEGER_COMPARE
 
 void
-test_qsort_b_bsearch (void)
+b_test_qsort_b_bsearch (void)
 {
   short shorts[] = { -2, 99, 0, -743, 2, -10000, 4 };
-  int ints[] = { -2, 99, 0, -743, 2, B_INT_MIN, 4 };
+  int ints[] = { -2, 99, 0, -743, 2, -10000, 4 };
   short s;
   int i;
 
-  b_qsort (ints, sizeof (ints) / sizeof (*ints), sizeof (int), b_compare_int);
-  b_assert (ints[0] == B_INT_MIN);
+  b_qsort (ints, sizeof (ints) / sizeof (*ints), sizeof (int),
+           b_internal_compare_int);
+  b_assert (ints[0] == -10000);
   b_assert (ints[1] == -743);
   b_assert (ints[2] == -2);
   b_assert (ints[3] == 0);
@@ -32,7 +32,7 @@ test_qsort_b_bsearch (void)
   b_assert (ints[6] == 99);
 
   b_qsort (shorts, sizeof (shorts) / sizeof (*shorts), sizeof (short),
-           b_compare_short);
+           b_internal_compare_short);
   b_assert (shorts[0] == -10000);
   b_assert (shorts[1] == -743);
   b_assert (shorts[2] == -2);
@@ -41,45 +41,47 @@ test_qsort_b_bsearch (void)
   b_assert (shorts[5] == 4);
   b_assert (shorts[6] == 99);
 
-#define B_BSEARCH_TEST_INTS                                                   \
+#define B_INTERNAL_BSEARCH_TEST                                               \
   ((const int *)b_bsearch (&i, ints, sizeof (ints) / sizeof (*ints),          \
-                           sizeof (int), b_compare_int))
-  i = B_INT_MIN;
-  b_assert (B_BSEARCH_TEST_INTS - ints == 0);
+                           sizeof (int), b_internal_compare_int))
+  i = -10000;
+  b_assert (B_INTERNAL_BSEARCH_TEST - ints == 0);
   i = -743;
-  b_assert (B_BSEARCH_TEST_INTS - ints == 1);
+  b_assert (B_INTERNAL_BSEARCH_TEST - ints == 1);
   i = -2;
-  b_assert (B_BSEARCH_TEST_INTS - ints == 2);
+  b_assert (B_INTERNAL_BSEARCH_TEST - ints == 2);
   i = 0;
-  b_assert (B_BSEARCH_TEST_INTS - ints == 3);
+  b_assert (B_INTERNAL_BSEARCH_TEST - ints == 3);
   i = 2;
-  b_assert (B_BSEARCH_TEST_INTS - ints == 4);
+  b_assert (B_INTERNAL_BSEARCH_TEST - ints == 4);
   i = 4;
-  b_assert (B_BSEARCH_TEST_INTS - ints == 5);
+  b_assert (B_INTERNAL_BSEARCH_TEST - ints == 5);
   i = 99;
-  b_assert (B_BSEARCH_TEST_INTS - ints == 6);
+  b_assert (B_INTERNAL_BSEARCH_TEST - ints == 6);
+#undef B_INTERNAL_BSEARCH_TEST
 
-#define B_BSEARCH_TEST_SHORTS                                                 \
+#define B_INTERNAL_BSEARCH_TEST                                               \
   ((const short *)b_bsearch (&s, shorts, sizeof (shorts) / sizeof (*shorts),  \
-                             sizeof (short), b_compare_short))
+                             sizeof (short), b_internal_compare_short))
   s = -10000;
-  b_assert (B_BSEARCH_TEST_SHORTS - shorts == 0);
+  b_assert (B_INTERNAL_BSEARCH_TEST - shorts == 0);
   s = -743;
-  b_assert (B_BSEARCH_TEST_SHORTS - shorts == 1);
+  b_assert (B_INTERNAL_BSEARCH_TEST - shorts == 1);
   s = -2;
-  b_assert (B_BSEARCH_TEST_SHORTS - shorts == 2);
+  b_assert (B_INTERNAL_BSEARCH_TEST - shorts == 2);
   s = 0;
-  b_assert (B_BSEARCH_TEST_SHORTS - shorts == 3);
+  b_assert (B_INTERNAL_BSEARCH_TEST - shorts == 3);
   s = 2;
-  b_assert (B_BSEARCH_TEST_SHORTS - shorts == 4);
+  b_assert (B_INTERNAL_BSEARCH_TEST - shorts == 4);
   s = 4;
-  b_assert (B_BSEARCH_TEST_SHORTS - shorts == 5);
+  b_assert (B_INTERNAL_BSEARCH_TEST - shorts == 5);
   s = 99;
-  b_assert (B_BSEARCH_TEST_SHORTS - shorts == 6);
+  b_assert (B_INTERNAL_BSEARCH_TEST - shorts == 6);
+#undef B_INTERNAL_BSEARCH_TEST
 }
 
 void
-test_atoi (void)
+b_test_atoi (void)
 {
   b_assert (b_atoi ("42") == 42);
   b_assert (b_atoi ("  42") == 42);
@@ -94,7 +96,7 @@ test_atoi (void)
 }
 
 void
-test_atol (void)
+b_test_atol (void)
 {
   b_assert (b_atol ("42") == 42);
   b_assert (b_atol ("  42") == 42);
@@ -109,7 +111,7 @@ test_atol (void)
 }
 
 void
-test_malloc (void)
+b_test_malloc (void)
 {
   char *cp1;
   char *cp2;
@@ -135,7 +137,7 @@ test_malloc (void)
 }
 
 void
-test_calloc (void)
+b_test_calloc (void)
 {
   char *cp1;
   char *cp2;
@@ -160,9 +162,9 @@ test_calloc (void)
   b_assert ((b_size_t)ip2 % sizeof (int) == 0);
 
   for (i = 0; i < 10; ++i)
-  {
-    b_assert(ip2[i] == 0);
-  }
+    {
+      b_assert (ip2[i] == 0);
+    }
 
   ip1 = b_calloc (2, sizeof (int));
   b_assert (ip1 - ip2 == 10);
@@ -174,6 +176,6 @@ test_calloc (void)
 }
 
 void
-test_realloc (void)
+b_test_realloc (void)
 {
 }

@@ -3,7 +3,7 @@
 #include "b_assert.h"
 
 void
-test_isalnum (void)
+b_test_isalnum (void)
 {
   b_assert (!b_isalnum ('0' - 1));
   b_assert (b_isalnum ('0'));
@@ -20,7 +20,7 @@ test_isalnum (void)
 }
 
 void
-test_isalpha (void)
+b_test_isalpha (void)
 {
   b_assert (!b_isalpha ('A' - 1));
   b_assert (b_isalpha ('A'));
@@ -33,7 +33,7 @@ test_isalpha (void)
 }
 
 void
-test_islower (void)
+b_test_islower (void)
 {
   b_assert (!b_islower ('A' - 1));
   b_assert (!b_islower ('A'));
@@ -46,7 +46,7 @@ test_islower (void)
 }
 
 void
-test_isupper (void)
+b_test_isupper (void)
 {
   b_assert (!b_isupper ('A' - 1));
   b_assert (b_isupper ('A'));
@@ -59,7 +59,7 @@ test_isupper (void)
 }
 
 void
-test_isdigit (void)
+b_test_isdigit (void)
 {
   b_assert (!b_isdigit ('0' - 1));
   b_assert (b_isdigit ('0'));
@@ -68,7 +68,7 @@ test_isdigit (void)
 }
 
 void
-test_isxdigit (void)
+b_test_isxdigit (void)
 {
   b_assert (!b_isxdigit ('0' - 1));
   b_assert (b_isxdigit ('0'));
@@ -85,7 +85,7 @@ test_isxdigit (void)
 }
 
 void
-test_iscntrl (void)
+b_test_iscntrl (void)
 {
   b_assert (b_iscntrl (0));
   b_assert (b_iscntrl (31));
@@ -95,7 +95,7 @@ test_iscntrl (void)
 }
 
 void
-test_isgraph (void)
+b_test_isgraph (void)
 {
   b_assert (!b_isgraph ('!' - 1));
   b_assert (b_isgraph ('!'));
@@ -104,7 +104,7 @@ test_isgraph (void)
 }
 
 void
-test_isspace (void)
+b_test_isspace (void)
 {
   b_assert (!b_isspace ('\t' - 1));
   b_assert (b_isspace ('\t'));
@@ -114,7 +114,7 @@ test_isspace (void)
 }
 
 void
-test_isprint (void)
+b_test_isprint (void)
 {
   b_assert (!b_isprint (' ' - 1));
   b_assert (b_isprint (' '));
@@ -123,7 +123,7 @@ test_isprint (void)
 }
 
 void
-test_ispunct (void)
+b_test_ispunct (void)
 {
   b_assert (!b_ispunct ('!' - 1));
   b_assert (b_ispunct ('!'));
@@ -144,7 +144,7 @@ test_ispunct (void)
 }
 
 void
-test_tolower (void)
+b_test_tolower (void)
 {
   b_assert (b_tolower ('a') == 'a');
   b_assert (b_tolower ('A') == 'a');
@@ -153,7 +153,7 @@ test_tolower (void)
 }
 
 void
-test_toupper (void)
+b_test_toupper (void)
 {
   b_assert (b_toupper ('a') == 'A');
   b_assert (b_toupper ('A') == 'A');

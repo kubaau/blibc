@@ -5,4 +5,4 @@ project(blibc)
 aux_source_directory(. SRC_LIST)
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
-set(CMAKE_C_FLAGS "-ansi -Wall -Wextra -Werror -pedantic -O3")
+set(CMAKE_C_FLAGS "-std=c89 -Wall -Wextra -Werror -pedantic -O3")

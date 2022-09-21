@@ -1,7 +1,10 @@
 #include "b_assert.h"
 #include "b_ctype_tests.h"
 #include "b_errno.h"
+#include "b_iso646.h"
+#include "b_stdbool.h"
 #include "b_stddef.h"
+#include "b_stdint.h"
 #include "b_stdlib.h"
 #include "b_stdlib_tests.h"
 #include "b_string_tests.h"
@@ -16,7 +19,6 @@ main ()
     int i;
     char c;
     float f;
-    short s;
   } test;
 
   b_test_isalnum ();
@@ -43,8 +45,6 @@ main ()
   b_assert (b_offsetof (test, i) == 0);
   b_assert (b_offsetof (test, c) == sizeof (int));
   b_assert (b_offsetof (test, f) == sizeof (int) + sizeof (int));
-  b_assert (b_offsetof (test, s)
-            == sizeof (int) + sizeof (int) + sizeof (float));
 
   b_test_qsort_b_bsearch ();
 
@@ -75,6 +75,13 @@ main ()
   b_test_malloc ();
   b_test_calloc ();
   b_test_realloc ();
+  b_test_aligned_alloc ();
+
+  b_test_abs ();
+  b_test_labs ();
+
+  b_test_div ();
+  b_test_ldiv ();
 
   return B_EXIT_SUCCESS;
 }

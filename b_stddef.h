@@ -14,4 +14,8 @@ typedef long b_ptrdiff_t;
 
 #define b_offsetof(type, member) ((b_size_t) & (((type *)0)->member))
 
+typedef b_size_t b_rsize_t;
+
+typedef long double b_max_align_t;
+
 #endif /* B_STDDEF_H */

@@ -7,4 +7,6 @@ extern int b_internal_errno;
 #define B_EDOM 33
 #define B_ERANGE 34
 
+typedef int b_errno_t;
+
 #endif /* B_ERRNO_H */

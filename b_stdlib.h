@@ -27,5 +27,24 @@ void *b_malloc (b_size_t size);
 void *b_calloc (b_size_t num, b_size_t size);
 void *b_realloc (void *ptr, b_size_t new_size);
 void b_free (void *ptr);
+void *b_aligned_alloc (b_size_t alignment, b_size_t size);
+
+int b_abs (int n);
+long b_labs (long n);
+
+typedef struct
+{
+  int quot;
+  int rem;
+} b_div_t;
+
+typedef struct
+{
+  long quot;
+  long rem;
+} b_ldiv_t;
+
+b_div_t b_div (int x, int y);
+b_ldiv_t b_ldiv (long x, long y);
 
 #endif /* B_STDLIB_H */

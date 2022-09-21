@@ -1,6 +1,7 @@
 #include "b_stdlib.h"
 
 #include "b_assert.h"
+#include "b_stddef.h"
 
 #define B_INTERNAL_DEFINE_INTEGER_COMPARE(type)                               \
   static int b_internal_compare_##type (const void *a, const void *b)         \
@@ -113,69 +114,201 @@ b_test_atol (void)
 void
 b_test_malloc (void)
 {
-  char *cp1;
-  char *cp2;
-  int *ip1;
-  int *ip2;
+  typedef struct
+  {
+    long l1;
+    long l2;
+  } test;
 
-  cp1 = b_malloc (1);
-  b_assert (cp1);
+  short *s;
+  char *c;
+  long *l;
+  test *t;
+  int *i;
 
-  cp2 = b_malloc (0);
-  b_assert (cp2 - cp1 == 1);
+  b_free (b_malloc (0));
 
-  ip1 = b_malloc (sizeof (int));
-  b_assert ((b_size_t)ip1 % sizeof (int) == 0);
+#define B_INTERNAL_MALLOC_TEST(var)                                           \
+  var = b_malloc (sizeof (*var));                                             \
+  b_assert (var);                                                             \
+  b_assert ((b_size_t)var % sizeof (*var) == 0);                              \
+  *var = 42;                                                                  \
+  b_assert (*var == 42);                                                      \
+  b_free (var);
 
-  ip2 = b_malloc (sizeof (int));
-  b_assert (ip2 - ip1 == 1);
-  b_assert ((b_size_t)ip2 % sizeof (int) == 0);
+  B_INTERNAL_MALLOC_TEST (c)
+  B_INTERNAL_MALLOC_TEST (s)
+  B_INTERNAL_MALLOC_TEST (i)
+  B_INTERNAL_MALLOC_TEST (l)
+#undef B_INTERNAL_MALLOC_TEST
 
-  cp1 = b_malloc (1024);
-  b_assert (cp1 == B_NULL);
-  b_free (cp1);
+  t = b_malloc (sizeof (*t));
+  b_assert (t);
+  b_assert ((b_size_t)t % sizeof (*t) == 0);
+  t->l1 = 42;
+  t->l2 = 43;
+  b_assert (t->l1 == 42);
+  b_assert (t->l2 == 43);
+  b_free (t);
+
+  t = b_malloc (1000000);
+  b_assert (t);
+  b_assert ((b_size_t)t % sizeof (b_max_align_t) == 0);
+  (t + 1)->l1 = 42;
+  (t + 2)->l2 = 43;
+  b_assert ((t + 1)->l1 == 42);
+  b_assert ((t + 2)->l2 == 43);
+  b_free (t);
 }
 
 void
 b_test_calloc (void)
 {
-  char *cp1;
-  char *cp2;
-  int *ip1;
-  int *ip2;
+  int *ptr;
   int i;
 
-  cp1 = b_calloc (1, 1);
-  b_assert (cp1);
+  b_free (b_calloc (0, 0));
+  b_free (b_calloc (0, 1));
+  b_free (b_calloc (1, 0));
 
-  cp2 = b_calloc (1, 0);
-  b_assert (cp2 - cp1 == 1);
+  ptr = b_calloc (1, sizeof (*ptr));
+  b_assert (ptr);
+  b_assert ((b_size_t)ptr % sizeof (*ptr) == 0);
+  *ptr = 42;
+  b_assert (*ptr == 42);
+  b_free (ptr);
 
-  cp1 = b_calloc (0, 1);
-  b_assert (cp1 - cp2 == 1);
-
-  ip1 = b_calloc (1, sizeof (int));
-  b_assert ((b_size_t)ip1 % sizeof (int) == 0);
-
-  ip2 = b_calloc (10, sizeof (int));
-  b_assert (ip2 - ip1 == 1);
-  b_assert ((b_size_t)ip2 % sizeof (int) == 0);
-
+  ptr = b_calloc (10, sizeof (*ptr));
+  b_assert (ptr);
+  b_assert ((b_size_t)ptr % sizeof (*ptr) == 0);
   for (i = 0; i < 10; ++i)
     {
-      b_assert (ip2[i] == 0);
+      b_assert (ptr[i] == 0);
     }
+  ptr[0] = 42;
+  ptr[9] = 43;
+  b_assert (ptr[0] == 42);
+  b_assert (ptr[9] == 43);
+  b_free (ptr);
 
-  ip1 = b_calloc (2, sizeof (int));
-  b_assert (ip1 - ip2 == 10);
-  b_assert ((b_size_t)ip1 % sizeof (int) == 0);
-
-  cp1 = b_calloc (32, 32);
-  b_assert (cp1 == B_NULL);
-  b_free (cp1);
+  ptr = b_calloc (1000, 1000);
+  b_assert (ptr);
+  b_free (ptr);
 }
 
 void
 b_test_realloc (void)
 {
+  int *ptr1;
+  int *ptr2;
+
+  b_free (b_realloc (B_NULL, 0));
+  b_free (b_realloc (B_NULL, 1));
+
+  ptr1 = b_realloc (B_NULL, sizeof (int));
+  b_assert (ptr1);
+  b_assert ((b_size_t)ptr1 % sizeof (int) == 0);
+  *ptr1 = 42;
+  b_assert (*ptr1 == 42);
+  b_free (ptr1);
+
+  ptr1 = b_malloc (sizeof (int));
+  *ptr1 = 42;
+  ptr2 = ptr1;
+  ptr1 = b_realloc (ptr1, sizeof (int[10]));
+  b_assert (ptr1);
+  b_assert (ptr1 != ptr2);
+  b_assert ((b_size_t)ptr1 % sizeof (int) == 0);
+  ptr1[1] = 43;
+  ptr1[9] = 44;
+  b_assert (ptr1[0] == 42);
+  b_assert (ptr1[1] == 43);
+  b_assert (ptr1[9] == 44);
+  b_free (ptr1);
+
+  ptr2 = ptr1;
+  ptr1 = b_realloc (ptr1, sizeof (int[5]));
+  b_assert (ptr1);
+  b_assert (ptr1 == ptr2);
+  b_assert ((b_size_t)ptr1 % sizeof (int) == 0);
+  ptr1[2] = 41;
+  ptr1[4] = 40;
+  b_assert (ptr1[0] == 42);
+  b_assert (ptr1[1] == 43);
+  b_assert (ptr1[2] == 41);
+  b_assert (ptr1[4] == 40);
+  b_free (ptr1);
+}
+
+void
+b_test_aligned_alloc (void)
+{
+  int *ptr = b_aligned_alloc (256, sizeof (int));
+  b_assert (ptr);
+  b_assert ((b_size_t)ptr % 256 == 0);
+  *ptr = 42;
+  b_assert (*ptr == 42);
+  b_free (ptr);
+}
+
+void
+b_test_abs (void)
+{
+  b_assert (b_abs (0) == 0);
+  b_assert (b_abs (1) == 1);
+  b_assert (b_abs (-1) == 1);
+  b_assert (b_abs (100) == 100);
+  b_assert (b_abs (-100) == 100);
+}
+
+void
+b_test_labs (void)
+{
+  b_assert (b_labs (0) == 0);
+  b_assert (b_labs (1) == 1);
+  b_assert (b_labs (-1) == 1);
+  b_assert (b_labs (100) == 100);
+  b_assert (b_labs (-100) == 100);
+  b_assert (b_labs (3147483647) == 3147483647);
+  b_assert (b_labs (-3147483647) == 3147483647);
+}
+
+void
+b_test_div (void)
+{
+  b_div_t div;
+
+  div = b_div (0, 1);
+  b_assert (div.quot == 0 && div.rem == 0);
+  div = b_div (1, 1);
+  b_assert (div.quot == 1 && div.rem == 0);
+  div = b_div (2, 2);
+  b_assert (div.quot == 1 && div.rem == 0);
+  div = b_div (3, 2);
+  b_assert (div.quot == 1 && div.rem == 1);
+  div = b_div (23, 5);
+  b_assert (div.quot == 4 && div.rem == 3);
+  div = b_div (-23, 5);
+  b_assert (div.quot == -4 && div.rem == -3);
+}
+
+void
+b_test_ldiv (void)
+{
+  b_ldiv_t div;
+
+  div = b_ldiv (0, 1);
+  b_assert (div.quot == 0 && div.rem == 0);
+  div = b_ldiv (1, 1);
+  b_assert (div.quot == 1 && div.rem == 0);
+  div = b_ldiv (2, 2);
+  b_assert (div.quot == 1 && div.rem == 0);
+  div = b_ldiv (3, 2);
+  b_assert (div.quot == 1 && div.rem == 1);
+  div = b_ldiv (23, 5);
+  b_assert (div.quot == 4 && div.rem == 3);
+  div = b_ldiv (-23, 5);
+  b_assert (div.quot == -4 && div.rem == -3);
+  div = b_ldiv (3147483647, 5);
+  b_assert (div.quot == 629496729 && div.rem == 2);
 }

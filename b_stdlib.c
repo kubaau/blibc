@@ -1,11 +1,11 @@
 #include "b_stdlib.h"
 
 #include "b_ctype.h"
+#include "b_stddef.h"
 #include "b_string.h"
 
 typedef int (*b_internal_comp) (const void *, const void *);
 static void b_internal_quicksort ();
-static void *b_internal_alloc ();
 
 void
 b_qsort (void *ptr, b_size_t count, b_size_t size, b_internal_comp comp)
@@ -83,12 +83,17 @@ b_atol (const char *str)
   return sign_set == -1 ? -ret : ret;
 }
 
-#define B_INTERNAL_ALIGNOF(size)                                              \
-  (size >= 16 ? 16 : size >= 8 ? 8 : size >= 4 ? 4 : size >= 2 ? 2 : 1)
+typedef struct b_internal_memblock
+{
+  b_size_t size;
+  struct b_internal_memblock *next;
+  char free;
+} b_internal_memblock;
+
 void *
 b_malloc (b_size_t size)
 {
-  return b_internal_alloc (size, B_INTERNAL_ALIGNOF (size));
+  return b_aligned_alloc (sizeof (b_max_align_t), size);
 }
 
 void *
@@ -96,31 +101,151 @@ b_calloc (b_size_t num, b_size_t size)
 {
   const b_size_t total = num * size;
 
-  void *ret = b_internal_alloc (total, B_INTERNAL_ALIGNOF (size));
+  void *ret = b_malloc (total);
   return ret ? b_memset (ret, 0, total) : ret;
 }
-#undef B_INTERNAL_ALIGNOF
 
 void *
 b_realloc (void *ptr, b_size_t new_size)
 {
+  b_internal_memblock *memblock;
+  void *ret;
+
   if (!ptr)
     {
       return b_malloc (new_size);
     }
 
+  memblock = (b_internal_memblock *)ptr - 1;
+  if (memblock->size >= new_size)
+    {
+      return ptr;
+    }
+
+  ret = b_malloc (new_size);
+
+  if (!ret)
+    {
+      return B_NULL;
+    }
+
+  b_memcpy (ret, ptr, memblock->size);
   b_free (ptr);
-  return b_malloc (new_size);
+  return ret;
 }
 
 void
 b_free (void *ptr)
 {
+  b_internal_memblock *memblock;
+
   if (!ptr)
     {
       return;
     }
+
+  memblock = (b_internal_memblock *)ptr - 1;
+  memblock->free = 1;
 }
+
+void *
+b_aligned_alloc (b_size_t alignment, b_size_t size)
+{
+#define B_INTERNAL_SBRK_FAILED(result) ((result) == (void *)-1)
+#define B_INTERNAL_ALIGNMENT_REMAINDER(ptr, alignment)                        \
+  ((b_size_t)(ptr) % (alignment))
+  void *sbrk ();
+
+  static b_internal_memblock *base;
+  b_internal_memblock *prev;
+  b_internal_memblock *ret;
+  b_size_t al_remainder;
+  b_size_t req_size;
+
+  if (!base)
+    {
+      if (B_INTERNAL_SBRK_FAILED (base = sbrk (sizeof (*base))))
+        {
+          return base = B_NULL;
+        }
+      else
+        {
+          b_memset (base, 0, sizeof (*base));
+        }
+    }
+
+  for (ret = base, prev = ret; ret; prev = ret, ret = ret->next)
+    {
+      if (!ret->free)
+        {
+          continue;
+        }
+      if (ret->size < size)
+        {
+          continue;
+        }
+      if (B_INTERNAL_ALIGNMENT_REMAINDER (ret + 1, alignment))
+        {
+          continue;
+        }
+      ret->free = 0;
+      return ret + 1;
+    }
+
+  ret = sbrk (0);
+  req_size = sizeof (b_internal_memblock) + size;
+  al_remainder = B_INTERNAL_ALIGNMENT_REMAINDER (ret + 1, alignment);
+  if (al_remainder)
+    {
+      req_size += alignment - al_remainder;
+      ret = (b_internal_memblock *)((char *)ret + al_remainder);
+    }
+  if (B_INTERNAL_SBRK_FAILED (sbrk (req_size)))
+    {
+      return B_NULL;
+    }
+
+  prev->next = ret;
+  ret->size = size;
+  ret->next = B_NULL;
+  ret->free = 0;
+  return ret + 1;
+#undef B_INTERNAL_ALIGNMENT_REMAINDER
+#undef B_INTERNAL_SBRK_FAILED
+}
+
+#define B_INTERNAL_ABS(n) (n >= 0 ? n : -n)
+int
+b_abs (int n)
+{
+  return B_INTERNAL_ABS (n);
+}
+
+long
+b_labs (long n)
+{
+  return B_INTERNAL_ABS (n);
+}
+#undef B_INTERNAL_ABS
+
+#define B_INTERNAL_DIV(type)                                                  \
+  type ret;                                                                   \
+  ret.quot = x / y;                                                           \
+  ret.rem = x % y;                                                            \
+  return ret;
+
+b_div_t
+b_div (int x, int y)
+{
+  B_INTERNAL_DIV (b_div_t);
+}
+
+b_ldiv_t
+b_ldiv (long x, long y)
+{
+  B_INTERNAL_DIV (b_ldiv_t);
+}
+#undef B_INTERNAL_DIV
 
 static void
 b_internal_swap (void *a, void *b, b_size_t size)
@@ -167,34 +292,4 @@ b_internal_quicksort (void *ptr, b_size_t size, int first, int last,
       b_internal_quicksort (ptr, size, first, q - 1, comp);
       b_internal_quicksort (ptr, size, q + 1, last, comp);
     }
-}
-
-static void *
-b_internal_alloc (b_size_t size, b_size_t al)
-{
-  static char buf[1024];
-  static const char *const buf_end = (const char *)buf + sizeof (buf);
-  static const char *rover = (const char *)buf;
-  const char *ret = rover;
-
-  if (!size)
-    {
-      size = 1;
-    }
-
-  if (al > 1)
-    {
-      while ((b_size_t)ret % al != 0)
-        {
-          ++ret;
-        }
-    }
-
-  if (ret + size >= buf_end)
-    {
-      return B_NULL;
-    }
-
-  rover = ret + size;
-  return (void *)ret;
 }

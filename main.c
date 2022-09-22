@@ -9,6 +9,7 @@
 #include "b_stdlib.h"
 #include "b_stdlib_tests.h"
 #include "b_string_tests.h"
+#include "b_threads_tests.h"
 #include "b_wchar.h"
 #include "b_wctype.h"
 
@@ -38,6 +39,8 @@ main ()
   b_test_toupper ();
 
   b_assert (!b_errno);
+  b_errno = B_ENOMEM;
+  b_assert (b_errno == 12);
   b_errno = B_EDOM;
   b_assert (b_errno == 33);
   b_errno = B_ERANGE;
@@ -89,6 +92,8 @@ main ()
   b_test_ldiv ();
 
   b_test_rand ();
+
+  b_test_threads ();
 
   return B_EXIT_SUCCESS;
 }

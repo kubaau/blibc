@@ -148,6 +148,21 @@ b_free (void *ptr)
   memblock->free = 1;
 }
 
+void
+b_free_sized (void *ptr, b_size_t size)
+{
+  (void)size;
+  b_free (ptr);
+}
+
+void
+b_free_aligned_sized (void *ptr, b_size_t alignment, b_size_t size)
+{
+  (void)alignment;
+  (void)size;
+  b_free (ptr);
+}
+
 void *
 b_aligned_alloc (b_size_t alignment, b_size_t size)
 {
@@ -157,6 +172,7 @@ b_aligned_alloc (b_size_t alignment, b_size_t size)
   void *sbrk ();
 
   static b_internal_memblock *base;
+  b_size_t size_with_header;
   b_internal_memblock *prev;
   b_internal_memblock *ret;
   b_size_t al_remainder;
@@ -193,17 +209,17 @@ b_aligned_alloc (b_size_t alignment, b_size_t size)
     }
 
   ret = sbrk (0);
-  req_size = sizeof (b_internal_memblock) + size;
-  al_remainder = B_INTERNAL_ALIGNMENT_REMAINDER (ret + 1, alignment);
-  if (al_remainder)
+  size_with_header = size + sizeof (b_internal_memblock);
+  req_size = size_with_header;
+  if ((al_remainder = B_INTERNAL_ALIGNMENT_REMAINDER (ret + 1, alignment)))
     {
       req_size += alignment - al_remainder;
-      ret = (b_internal_memblock *)((char *)ret + al_remainder);
     }
   if (B_INTERNAL_SBRK_FAILED (sbrk (req_size)))
     {
       return B_NULL;
     }
+  ret = (b_internal_memblock *)((char *)ret + req_size - size_with_header);
 
   prev->next = ret;
   ret->size = size;
@@ -246,6 +262,20 @@ b_ldiv (long x, long y)
   B_INTERNAL_DIV (b_ldiv_t);
 }
 #undef B_INTERNAL_DIV
+
+static unsigned b_internal_seed = 1;
+
+int
+b_rand ()
+{
+  return b_internal_seed++;
+}
+
+void
+b_srand (unsigned seed)
+{
+  b_internal_seed = seed;
+}
 
 static void
 b_internal_swap (void *a, void *b, b_size_t size)

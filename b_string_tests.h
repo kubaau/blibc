@@ -16,12 +16,15 @@ void b_test_strcspn (void);
 void b_test_strpbrk (void);
 void b_test_strstr (void);
 void b_test_strtok (void);
+void b_test_strdup (void);
+void b_test_strndup (void);
 
 void b_test_memchr (void);
 void b_test_memcmp (void);
 void b_test_memset (void);
 void b_test_memcpy (void);
 void b_test_memmove (void);
+void b_test_memccpy (void);
 
 void b_test_strerror (void);
 

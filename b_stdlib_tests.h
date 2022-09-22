@@ -17,4 +17,6 @@ void b_test_labs (void);
 void b_test_div (void);
 void b_test_ldiv (void);
 
+void b_test_rand ();
+
 #endif /* B_STDLIB_TESTS_H */

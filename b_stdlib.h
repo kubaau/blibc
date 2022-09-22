@@ -13,6 +13,8 @@ typedef unsigned long b_size_t;
 #define B_NULL 0
 #endif /* B_NULL */
 
+#define RAND_MAX 2147483647
+
 void b_abort (void);
 
 void b_qsort (void *ptr, b_size_t count, b_size_t size,
@@ -27,6 +29,8 @@ void *b_malloc (b_size_t size);
 void *b_calloc (b_size_t num, b_size_t size);
 void *b_realloc (void *ptr, b_size_t new_size);
 void b_free (void *ptr);
+void b_free_sized (void *ptr, b_size_t size);
+void b_free_aligned_sized (void *ptr, b_size_t alignment, b_size_t size);
 void *b_aligned_alloc (b_size_t alignment, b_size_t size);
 
 int b_abs (int n);
@@ -46,5 +50,8 @@ typedef struct
 
 b_div_t b_div (int x, int y);
 b_ldiv_t b_ldiv (long x, long y);
+
+int b_rand ();
+void b_srand (unsigned seed);
 
 #endif /* B_STDLIB_H */

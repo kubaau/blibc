@@ -67,6 +67,12 @@ b_isspace (int ch)
 }
 
 int
+b_isblank (int ch)
+{
+  return ch == '\t' || ch == ' ';
+}
+
+int
 b_isprint (int ch)
 {
   return B_INTERNAL_IS_BETWEEN (ch, ' ', '~');

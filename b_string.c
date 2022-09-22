@@ -2,8 +2,8 @@
 
 #include "b_errno.h"
 #include "b_limits.h"
+#include "b_stdlib.h"
 
-static char *b_internal_strcpy ();
 static char *b_internal_strcat ();
 static int b_internal_strcmp ();
 static b_size_t b_internal_strspn (const char *dest, const char *src,
@@ -12,13 +12,41 @@ static b_size_t b_internal_strspn (const char *dest, const char *src,
 char *
 b_strcpy (char *dest, const char *src)
 {
-  return b_internal_strcpy (dest, src, B_NULL);
+  const char *src_runner = src;
+  char *dest_runner = dest;
+
+  while (1)
+    {
+      *dest_runner = *src_runner++;
+      if (!*dest_runner++)
+        {
+          break;
+        }
+    }
+  return dest;
 }
 
 char *
 b_strncpy (char *dest, const char *src, b_size_t count)
 {
-  return b_internal_strcpy (dest, src, &count);
+  const char *src_runner = src;
+  char *dest_runner = dest;
+
+  while (count)
+    {
+      *dest_runner = *src_runner;
+      if (!*dest_runner++)
+        {
+          break;
+        }
+      ++src_runner;
+      --count;
+    }
+  while (count--)
+    {
+      *dest_runner++ = 0;
+    }
+  return dest;
 }
 
 char *
@@ -194,6 +222,36 @@ b_strtok (char *str, const char *delim)
   return ret;
 }
 
+char *
+b_strdup (const char *src)
+{
+  const b_size_t src_len_with_null = b_strlen (src) + 1;
+  char *ret = b_malloc (src_len_with_null);
+  b_memcpy (ret, src, src_len_with_null);
+  return ret;
+}
+
+char *
+b_strndup (const char *src, b_size_t size)
+{
+  const b_size_t src_len_with_null = b_strlen (src) + 1;
+  const b_size_t size_with_null = size + 1;
+  char *ret;
+
+  if (src_len_with_null <= size_with_null)
+    {
+      ret = b_malloc (src_len_with_null);
+      b_memcpy (ret, src, src_len_with_null);
+    }
+  else
+    {
+      ret = b_malloc (size_with_null);
+      b_memcpy (ret, src, size);
+      ret[size] = 0;
+    }
+  return ret;
+}
+
 void *
 b_memchr (const void *ptr, int ch, b_size_t count)
 {
@@ -270,6 +328,25 @@ b_memmove (void *dest, const void *src, b_size_t count)
   return dest;
 }
 
+void *
+b_memccpy (void *dest, const void *src, int c, b_size_t count)
+{
+  const char *src_runner = src;
+  char *dest_runner = dest;
+
+  while (count--)
+    {
+      *dest_runner = *src_runner;
+      if (*dest_runner == c)
+        {
+          return ++dest_runner;
+        }
+      ++dest_runner;
+      ++src_runner;
+    }
+  return B_NULL;
+}
+
 char *
 b_strerror (int errnum)
 {
@@ -282,25 +359,6 @@ b_strerror (int errnum)
     default:
       return "B_EUNKNOWN";
     }
-}
-
-static char *
-b_internal_strcpy (char *dest, const char *src, b_size_t *const count)
-{
-  const char *src_runner = src;
-  char *dest_runner = dest;
-
-  while (!count || (*count)--)
-    {
-      *dest_runner = *src_runner;
-      if (!*dest_runner)
-        {
-          return dest;
-        }
-      ++dest_runner;
-      ++src_runner;
-    }
-  return dest;
 }
 
 static char *

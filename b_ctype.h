@@ -10,6 +10,7 @@ int b_isxdigit (int ch);
 int b_iscntrl (int ch);
 int b_isgraph (int ch);
 int b_isspace (int ch);
+int b_isblank (int ch);
 int b_isprint (int ch);
 int b_ispunct (int ch);
 

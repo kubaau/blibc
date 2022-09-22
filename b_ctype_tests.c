@@ -114,6 +114,17 @@ b_test_isspace (void)
 }
 
 void
+b_test_isblank (void)
+{
+  b_assert (!b_isblank ('\t' - 1));
+  b_assert (b_isblank ('\t'));
+  b_assert (!b_isblank ('\t' + 1));
+  b_assert (!b_isblank (' ' - 1));
+  b_assert (b_isblank (' '));
+  b_assert (!b_isblank (' ') + 1);
+}
+
+void
 b_test_isprint (void)
 {
   b_assert (!b_isprint (' ' - 1));

@@ -10,6 +10,7 @@ void b_test_isxdigit (void);
 void b_test_iscntrl (void);
 void b_test_isgraph (void);
 void b_test_isspace (void);
+void b_test_isblank (void);
 void b_test_isprint (void);
 void b_test_ispunct (void);
 

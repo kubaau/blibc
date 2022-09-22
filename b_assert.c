@@ -1,16 +1,15 @@
 #include "b_string.h"
 
+#include <unistd.h>
+
 static char *b_internal_itoa ();
 
 void
 b_assertfailed (const char *file, int line, const char *condition)
 {
-  typedef long ssize_t;
-
   char buf[1024] = { 0 };
   char itoa_buf[10];
   void b_abort ();
-  ssize_t write();
 
   b_internal_itoa (itoa_buf, line);
 
@@ -24,7 +23,7 @@ b_assertfailed (const char *file, int line, const char *condition)
   b_strcat (buf, "\n");
 
   (void)-(write (2, buf, b_strlen (buf)));
-  b_abort ();
+  /*b_abort ();*/
 }
 
 static char *

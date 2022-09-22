@@ -7,6 +7,7 @@ typedef unsigned long b_size_t;
 #endif /* B_SIZE_T */
 
 typedef long b_ptrdiff_t;
+typedef void *nullptr_t;
 
 #ifndef B_NULL
 #define B_NULL 0

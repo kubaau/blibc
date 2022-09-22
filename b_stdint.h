@@ -96,20 +96,26 @@ typedef b_uint64_t b_uintptr_t;
 
 #define UINTMAX_MAX UINT64_MAX
 
-#define INT8_C(n) (b_int8_t)(n)
-#define INT16_C(n) (b_int16_t)(n)
-#define INT32_C(n) (b_int32_t)(n)
-#define INT64_C(n) (b_int64_t)(n)
+#define INT8_C(n) (b_int8_t) (n)
+#define INT16_C(n) (b_int16_t) (n)
+#define INT32_C(n) (b_int32_t) (n)
+#define INT64_C(n) (b_int64_t) (n)
 
-#define INTMAX_C(n) (b_intmax_t)(n)
+#define INTMAX_C(n) (b_intmax_t) (n)
 
-#define UINT8_C(n) (b_uint8_t)(n)
-#define UINT16_C(n) (b_uint16_t)(n)
-#define UINT32_C(n) (b_uint32_t)(n)
-#define UINT64_C(n) (b_uint64_t)(n)
+#define UINT8_C(n) (b_uint8_t) (n)
+#define UINT16_C(n) (b_uint16_t) (n)
+#define UINT32_C(n) (b_uint32_t) (n)
+#define UINT64_C(n) (b_uint64_t) (n)
 
-#define UINTMAX_C(n) (b_uintmax_t)(n)
+#define UINTMAX_C(n) (b_uintmax_t) (n)
 
 #define RSIZE_MAX UINT64_MAX
+
+#define B_PTRDIFF_WIDTH sizeof (long)
+#define B_PTRDIFF_MIN INT64_MIN
+#define B_PTRDIFF_MAX INT64_MAX
+#define B_SIZE_WIDTH sizeof (unsigned long)
+#define B_SIZE_MAX UINT64_MAX
 
 #endif /* B_STDINT_H */

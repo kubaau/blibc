@@ -149,7 +149,7 @@ b_test_malloc (void)
   t->l2 = 43;
   b_assert (t->l1 == 42);
   b_assert (t->l2 == 43);
-  b_free (t);
+  b_free_sized (t, sizeof (*t));
 
   t = b_malloc (1000000);
   b_assert (t);
@@ -249,6 +249,9 @@ b_test_aligned_alloc (void)
   *ptr = 42;
   b_assert (*ptr == 42);
   b_free (ptr);
+
+  ptr = b_aligned_alloc (256, sizeof (int));
+  b_free_aligned_sized (ptr, 256, sizeof (int));
 }
 
 void
@@ -311,4 +314,20 @@ b_test_ldiv (void)
   b_assert (div.quot == -4 && div.rem == -3);
   div = b_ldiv (3147483647, 5);
   b_assert (div.quot == 629496729 && div.rem == 2);
+}
+
+void
+b_test_rand ()
+{
+  b_assert (b_rand () == 1);
+  b_assert (b_rand () == 2);
+  b_assert (b_rand () == 3);
+  b_srand (1);
+  b_assert (b_rand () == 1);
+  b_assert (b_rand () == 2);
+  b_assert (b_rand () == 3);
+  b_srand (2);
+  b_assert (b_rand () == 2);
+  b_assert (b_rand () == 3);
+  b_assert (b_rand () == 4);
 }

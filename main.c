@@ -1,6 +1,7 @@
 #include "b_assert.h"
 #include "b_ctype_tests.h"
 #include "b_errno.h"
+#include "b_inttypes.h"
 #include "b_iso646.h"
 #include "b_stdbool.h"
 #include "b_stddef.h"
@@ -30,6 +31,7 @@ main ()
   b_test_iscntrl ();
   b_test_isgraph ();
   b_test_isspace ();
+  b_test_isblank ();
   b_test_isprint ();
   b_test_ispunct ();
   b_test_tolower ();
@@ -65,11 +67,14 @@ main ()
   b_test_strpbrk ();
   b_test_strstr ();
   b_test_strtok ();
+  b_test_strdup ();
+  b_test_strndup ();
   b_test_memchr ();
   b_test_memcmp ();
   b_test_memset ();
   b_test_memcpy ();
   b_test_memmove ();
+  b_test_memccpy ();
   b_test_strerror ();
 
   b_test_malloc ();
@@ -82,6 +87,8 @@ main ()
 
   b_test_div ();
   b_test_ldiv ();
+
+  b_test_rand ();
 
   return B_EXIT_SUCCESS;
 }

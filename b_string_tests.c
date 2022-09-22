@@ -2,6 +2,7 @@
 
 #include "b_assert.h"
 #include "b_errno.h"
+#include "b_stdlib.h"
 
 #define B_INTERNAL_STREQ(lhs, rhs) (b_strcmp (lhs, rhs) == 0)
 
@@ -26,6 +27,7 @@ void
 b_test_strncpy (void)
 {
   char buf[10];
+  int i;
 
 #define B_INTERNAL_STRNEQ(lhs, rhs, size) (b_strncmp (lhs, rhs, size) == 0)
   b_assert (b_strncpy (buf, "abc", 4) == buf);
@@ -35,10 +37,11 @@ b_test_strncpy (void)
   b_assert (b_strncpy (buf, "a123bc", 4) == buf);
   b_assert (B_INTERNAL_STRNEQ (buf, "a123bc", 4));
   b_assert (b_strncpy (buf, "", 4) == buf);
+  for (i = 0; i < 4; ++i)
+    b_assert (buf[i] == 0);
   b_assert (B_INTERNAL_STRNEQ (buf, "", 4));
   b_assert (b_strncpy (buf, "123456789", 4) == buf);
   b_assert (B_INTERNAL_STRNEQ (buf, "123456789", 4));
-#undef B_INTERNAL_STRNEQ
 }
 
 void
@@ -237,6 +240,36 @@ b_test_strtok (void)
 }
 
 void
+b_test_strdup (void)
+{
+  char *str;
+  str = b_strdup ("abc");
+  b_assert (B_INTERNAL_STREQ (str, "abc"));
+  b_free (str);
+  str = b_strdup ("");
+  b_assert (B_INTERNAL_STREQ (str, ""));
+  b_free (str);
+}
+
+void
+b_test_strndup (void)
+{
+  char *str;
+  str = b_strndup ("abc", 2);
+  b_assert (B_INTERNAL_STREQ (str, "ab"));
+  b_free (str);
+  str = b_strndup ("abc", 5);
+  b_assert (B_INTERNAL_STREQ (str, "abc"));
+  b_free (str);
+  str = b_strndup ("", 0);
+  b_assert (B_INTERNAL_STREQ (str, ""));
+  b_free (str);
+  str = b_strndup ("", 5);
+  b_assert (B_INTERNAL_STREQ (str, ""));
+  b_free (str);
+}
+
+void
 b_test_memchr (void)
 {
   const char str[] = "abcdef";
@@ -334,6 +367,33 @@ b_test_memmove (void)
 
   b_assert (b_memmove (buf, buf + 1, b_strlen (buf)) == buf);
   b_assert (B_INTERNAL_STREQ (buf, "abcdf"));
+}
+
+void
+b_test_memccpy (void)
+{
+  char buf[1000];
+  const char *const buf_end = buf + sizeof buf;
+  char *ptr;
+
+  b_assert (b_memccpy (buf, "abc", 0, 4) == buf + 4);
+  b_assert (B_INTERNAL_STRNEQ (buf, "abc", 4));
+  b_assert (b_memccpy (buf, "   abc", 0, 4) == B_NULL);
+  b_assert (B_INTERNAL_STRNEQ (buf, "   abc", 4));
+  b_assert (b_memccpy (buf, "a123bc", 0, 4) == B_NULL);
+  b_assert (B_INTERNAL_STRNEQ (buf, "a123bc", 4));
+  b_assert (b_memccpy (buf, "", 0, 4) == buf + 1);
+  b_assert (B_INTERNAL_STRNEQ (buf, "", 4));
+  b_assert (b_memccpy (buf, "123456789", 0, 4) == B_NULL);
+  b_assert (B_INTERNAL_STRNEQ (buf, "123456789", 4));
+  b_assert (b_memccpy (buf, "123456789", '6', 10) == buf + 6);
+  b_assert (B_INTERNAL_STRNEQ (buf, "123456789", 6));
+#undef B_INTERNAL_STRNEQ
+  ptr = b_memccpy (buf, "John, ", 0, sizeof buf);
+  ptr = b_memccpy (ptr - 1, "Paul, ", 0, buf_end - ptr);
+  ptr = b_memccpy (ptr - 1, "George, ", 0, buf_end - ptr);
+  ptr = b_memccpy (ptr - 1, "Joel ", 0, buf_end - ptr);
+  b_assert (B_INTERNAL_STREQ (buf, "John, Paul, George, Joel "));
 }
 
 void

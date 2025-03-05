@@ -6,8 +6,7 @@
 void
 b_test_stdc_leading_zeros (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_leading_zeros;
+  unsigned int (*const f) (unsigned char) = b_stdc_leading_zeros_uc;
 
   b_assert (f (0) == 8);
   b_assert (f (1) == 7);
@@ -28,8 +27,7 @@ b_test_stdc_leading_zeros (void)
 void
 b_test_stdc_leading_ones (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_leading_ones;
+  unsigned int (*const f) (unsigned char) = b_stdc_leading_ones_uc;
 
   b_assert (f (0x80) == 1);
   b_assert (f (0xB0) == 1);
@@ -48,8 +46,7 @@ b_test_stdc_leading_ones (void)
 void
 b_test_stdc_trailing_zeros (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_trailing_zeros;
+  unsigned int (*const f) (unsigned char) = b_stdc_trailing_zeros_uc;
 
   b_assert (f (0) == 8);
   b_assert (f (1) == 0);
@@ -71,8 +68,7 @@ b_test_stdc_trailing_zeros (void)
 void
 b_test_stdc_trailing_ones (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_trailing_ones;
+  unsigned int (*const f) (unsigned char) = b_stdc_trailing_ones_uc;
 
   b_assert (f (0) == 0);
   b_assert (f (1) == 1);
@@ -95,8 +91,7 @@ b_test_stdc_trailing_ones (void)
 void
 b_test_stdc_first_leading_zero (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_first_leading_zero;
+  unsigned int (*const f) (unsigned char) = b_stdc_first_leading_zero_uc;
 
   b_assert (f (0) == 1);
   b_assert (f (1) == 1);
@@ -115,8 +110,7 @@ b_test_stdc_first_leading_zero (void)
 void
 b_test_stdc_first_leading_one (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_first_leading_one;
+  unsigned int (*const f) (unsigned char) = b_stdc_first_leading_one_uc;
 
   b_assert (f (0) == 0);
   b_assert (f (1) == 8);
@@ -133,8 +127,7 @@ b_test_stdc_first_leading_one (void)
 void
 b_test_stdc_first_trailing_zero (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_first_trailing_zero;
+  unsigned int (*const f) (unsigned char) = b_stdc_first_trailing_zero_uc;
 
   b_assert (f (0) == 1);
   b_assert (f (1) == 2);
@@ -153,8 +146,7 @@ b_test_stdc_first_trailing_zero (void)
 void
 b_test_stdc_first_trailing_one (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_first_trailing_one;
+  unsigned int (*const f) (unsigned char) = b_stdc_first_trailing_one_uc;
 
   b_assert (f (0) == 0);
   b_assert (f (1) == 1);
@@ -172,8 +164,7 @@ b_test_stdc_first_trailing_one (void)
 void
 b_test_stdc_count_zeros (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_count_zeros;
+  unsigned int (*const f) (unsigned char) = b_stdc_count_zeros_uc;
 
   b_assert (f (0) == 8);
   b_assert (f (1) == 7);
@@ -193,8 +184,7 @@ b_test_stdc_count_zeros (void)
 void
 b_test_stdc_count_ones (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_count_ones;
+  unsigned int (*const f) (unsigned char) = b_stdc_count_ones_uc;
 
   b_assert (f (0) == 0);
   b_assert (f (1) == 1);
@@ -214,7 +204,7 @@ b_test_stdc_count_ones (void)
 void
 b_test_stdc_has_single_bit (void)
 {
-  b_bool (*const f) (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_has_single_bit;
+  b_bool (*const f) (unsigned char) = b_stdc_has_single_bit_uc;
 
   b_assert (f (0) == 0);
   b_assert (f (1) == 1);
@@ -233,8 +223,7 @@ b_test_stdc_has_single_bit (void)
 void
 b_test_stdc_bit_width (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_bit_width;
+  unsigned int (*const f) (unsigned char) = b_stdc_bit_width_uc;
 
   b_assert (f (0) == 1);
   b_assert (f (1) == 1);
@@ -253,8 +242,7 @@ b_test_stdc_bit_width (void)
 void
 b_test_stdc_bit_floor (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_bit_floor;
+  unsigned char (*const f) (unsigned char) = b_stdc_bit_floor_uc;
 
   b_assert (f (0) == 0);
   b_assert (f (1) == 1);
@@ -272,8 +260,7 @@ b_test_stdc_bit_floor (void)
 void
 b_test_stdc_bit_ceil (void)
 {
-  B_STDBIT_GENERIC_RETURN_TYPE (*const f)
-  (B_STDBIT_GENERIC_VALUE_TYPE) = b_stdc_bit_ceil;
+  unsigned char (*const f) (unsigned char) = b_stdc_bit_ceil_uc;
 
   b_assert (f (0) == 1);
   b_assert (f (1) == 1);

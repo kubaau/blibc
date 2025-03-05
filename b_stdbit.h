@@ -1,0 +1,37 @@
+#ifndef B_STDBIT_H
+#define B_STDBIT_H
+
+#include "b_stdbool.h"
+
+typedef unsigned int B_STDBIT_GENERIC_RETURN_TYPE;
+typedef unsigned char /*long long int*/ B_STDBIT_GENERIC_VALUE_TYPE;
+
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_leading_zeros (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_leading_ones (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_trailing_zeros (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_trailing_ones (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_first_leading_zero (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_first_leading_one (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_first_trailing_zero (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_first_trailing_one (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_count_zeros (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_count_ones (B_STDBIT_GENERIC_VALUE_TYPE value);
+b_bool b_stdc_has_single_bit (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_bit_width (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_bit_floor (B_STDBIT_GENERIC_VALUE_TYPE value);
+B_STDBIT_GENERIC_RETURN_TYPE
+b_stdc_bit_ceil (B_STDBIT_GENERIC_VALUE_TYPE value);
+
+#endif /* B_STDBIT_H */

@@ -4,6 +4,12 @@
 #include "b_stddef.h"
 #include "b_string.h"
 
+void
+b_abort (void)
+{
+  __asm__ ("hlt");
+}
+
 typedef int (*b_internal_comp) (const void *, const void *);
 static void b_internal_quicksort ();
 

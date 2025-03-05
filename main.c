@@ -3,6 +3,7 @@
 #include "b_errno.h"
 #include "b_inttypes.h"
 #include "b_iso646.h"
+#include "b_stdbit_tests.h"
 #include "b_stdbool.h"
 #include "b_stddef.h"
 #include "b_stdint.h"
@@ -94,6 +95,21 @@ main ()
   b_test_rand ();
 
   b_test_threads ();
+
+  b_test_stdc_leading_zeros ();
+  b_test_stdc_leading_ones ();
+  b_test_stdc_trailing_zeros ();
+  b_test_stdc_trailing_ones ();
+  b_test_stdc_first_leading_zero ();
+  b_test_stdc_first_leading_one ();
+  b_test_stdc_first_trailing_zero ();
+  b_test_stdc_first_trailing_one ();
+  b_test_stdc_count_zeros ();
+  b_test_stdc_count_ones ();
+  b_test_stdc_has_single_bit ();
+  b_test_stdc_bit_width ();
+  b_test_stdc_bit_floor ();
+  b_test_stdc_bit_ceil ();
 
   return B_EXIT_SUCCESS;
 }

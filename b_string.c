@@ -61,6 +61,36 @@ b_strncat (char *dest, const char *src, b_size_t count)
   return b_internal_strcat (dest, src, &count);
 }
 
+char *
+b_strdup (const char *src)
+{
+  const b_size_t src_len_with_null = b_strlen (src) + 1;
+  char *ret = b_malloc (src_len_with_null);
+  b_memcpy (ret, src, src_len_with_null);
+  return ret;
+}
+
+char *
+b_strndup (const char *src, b_size_t size)
+{
+  const b_size_t src_len_with_null = b_strlen (src) + 1;
+  const b_size_t size_with_null = size + 1;
+  char *ret;
+
+  if (src_len_with_null <= size_with_null)
+    {
+      ret = b_malloc (src_len_with_null);
+      b_memcpy (ret, src, src_len_with_null);
+    }
+  else
+    {
+      ret = b_malloc (size_with_null);
+      b_memcpy (ret, src, size);
+      ret[size] = 0;
+    }
+  return ret;
+}
+
 b_size_t
 b_strlen (const char *str)
 {
@@ -219,36 +249,6 @@ b_strtok (char *str, const char *delim)
       ++str_runner;
     }
   token = B_NULL;
-  return ret;
-}
-
-char *
-b_strdup (const char *src)
-{
-  const b_size_t src_len_with_null = b_strlen (src) + 1;
-  char *ret = b_malloc (src_len_with_null);
-  b_memcpy (ret, src, src_len_with_null);
-  return ret;
-}
-
-char *
-b_strndup (const char *src, b_size_t size)
-{
-  const b_size_t src_len_with_null = b_strlen (src) + 1;
-  const b_size_t size_with_null = size + 1;
-  char *ret;
-
-  if (src_len_with_null <= size_with_null)
-    {
-      ret = b_malloc (src_len_with_null);
-      b_memcpy (ret, src, src_len_with_null);
-    }
-  else
-    {
-      ret = b_malloc (size_with_null);
-      b_memcpy (ret, src, size);
-      ret[size] = 0;
-    }
   return ret;
 }
 

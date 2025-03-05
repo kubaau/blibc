@@ -13,7 +13,7 @@ typedef unsigned long b_size_t;
 #define B_NULL 0
 #endif /* B_NULL */
 
-#define RAND_MAX 2147483647
+#define B_RAND_MAX 2147483647
 
 void b_abort (void);
 

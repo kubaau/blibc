@@ -33,7 +33,7 @@ static int
 b_internal_tfunc (void *arg)
 {
   int *num = (int *)arg;
-  struct b_timespec dur;
+  b_timespec dur;
   int i;
 
   for (i = 0; i < 1000; ++i)
